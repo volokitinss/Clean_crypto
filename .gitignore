@@ -1,0 +1,15 @@
+*.DS_Store
+*.out
+*.pdf
+*.aux
+*.log
+*.nav
+*.snm
+*.toc
+*.exe
+*.o
+*.tcl
+*.abc
+*.prp
+
+
