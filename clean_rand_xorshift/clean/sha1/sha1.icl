@@ -1,13 +1,17 @@
+//*****************************************************************
+//*
+//* Implementation of sha1 hash function in Clean
+//* Works with 64-bit compiler and ASCII strings only.
+//*
+//*****************************************************************
 implementation module sha1
 
-
-import	StdInt, StdClass
-import StdTuple
 import StdList
 import StdString
 import StdArray
 
-bytesToInts :: [Int] -> [Int]//group ints 0-255 to 2**32 ints and pad the last with bits "10..0"
+//groups ints 0-255 to 2**32 ints and pads the last with bits "10..0"
+bytesToInts :: [Int] -> [Int]
 bytesToInts []		= [0x80000000]
 bytesToInts [i]		= [(i bitand 0xff) << 24 bitor 0x800000]
 bytesToInts [i,i1]		= [((i bitand 0xff) << 24) bitor ((i1 bitand 0xff) << 16) bitor 0x8000]
@@ -20,6 +24,7 @@ strToIntArr :: String -> [Int]
 strToIntArr ""		= []
 strToIntArr s	= [toInt s.[0]: strToIntArr (s % (1, size s)) ]
 
+//gets size of string assuming that each character is 8 bit long
 sizeOfMess :: String -> [Int]
 sizeOfMess s	= [(si >> 32) bitand 0xffffffff,  (si bitand 0xffffffff)]
 where
@@ -41,7 +46,7 @@ process512Chunk hi i	= process512Chunk abcde (drop 16 i)
 where
 	abcde = (chunkHash 0 hi hi (extend512to80x32 (take 16 i)))
 
-
+// extends 16 element array to 80 elements
 extend512to80x32 :: [Int] -> [Int]
 extend512to80x32 x = extIter 16 x
 
@@ -103,13 +108,22 @@ vSum _ []			= []
 vSum [a:as] [b:bs]	= [(a + b) bitand 0xffffffff:(vSum as bs)]
 
 
-sha1 :: String -> [Int]
-sha1 s = process512Chunk hi (chunck512WithSize s)
+sha1 :: String -> String
+sha1 s = intsToHexStr (process512Chunk hi (chunck512WithSize s))
 where
 	hi = [0x67452301,0xEFCDAB89, 0x98BADCFE, 0x10325476,0xC3D2E1F0]
 
+hashes :: [String] -> [String]
+hashes [] 		= []
+hashes [s:ss]	= [(sha1 s): hashes ss ]
 
+//test
+m = ["","1"," ","123","qwerty","1234567890abcdefg","qweerttyuuiopo","fgr v fdb fv ef vef ef e v","()()())(((((()()()()()()()()()()()()()()(){}}","                                                                                                                                                     ",
+	"8979875413354646468679898743485794385475t5245465433455463455463454534555643645464354654435434654364456354543645436454643543645464544364546"]
+//hashes in h calculated using Python library
+h =["da39a3ee5e6b4b0d3255bfef95601890afd80709", "356a192b7913b04c54574d18c28d46e6395428ab", "b858cb282617fb0956d960215c8e84d1ccf909c6", 
+	"40bd001563085fc35165329ea1ff5c5ecbdbbeef", "b1b3773a05c0ed0176787a4f1574ff0075f7521e", "8417680c09644df743d7cea1366fbe13a31b2d5e",
+	"4fba8c1ef0c5c890a0208e8c7f21409121e09291", "4890a4ec5332b6809baec0a7f218dd20b4ff7713", "09d6c629ca03ba0a57bb01a72e1d1d3938e01f21", 
+	"3814882c5ad85bae5d295f8936729b48fb939e86", "5b3152b6677610c46a3e266008d2f494f38069cd"]
 
-//chunck512WithSize ""
-
-Start = intsToHexStr (sha1 "Subsequently, on 12 August 2004, a collision for the full SHA-0 algorithm was announced by Joux, Carribault, Lemuet, and Jalby. This was done by using a generalization of the Chabaud and Joux attack. Finding the collision had complexity 251 and took about 80,000 CPU hours on a supercomputer with 256 Itanium 2 processors. (Equivalent to 13 days of full-time use of the computer.)")
+Start = (hashes m) == h

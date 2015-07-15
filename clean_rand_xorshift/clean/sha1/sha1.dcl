@@ -1,19 +1,13 @@
 definition module sha1
 
-//	**************************************************************************************************
-//
-//	General utility for random number generation.
-//
-//	This module has been written in Clean 1.3.2 and uses the Clean Standard Object I/O library 1.2
-//	
-//	**************************************************************************************************
+//*****************************************************************
+//*
+//* Implementation of sha1 hash function in Clean
+//* Works with 64-bit compiler and ASCII strings only.
+//*
+//*****************************************************************
 
-//import StdTime
 
-//	nullRandomSeed generates a useless RandomSeed (random nullRandomSeed = (0,nullRandomSeed)).
+sha1 :: String -> String
 
-//getNewRandomSeed:: !*env	-> (!RandomSeed, !*env)	| TimeEnv env
-//	GetNewRandomSeed generates a useful RandomSeed, using the current time.
-
-//random			:: !RandomSeed		-> (!Int, !RandomSeed)
-//	Given a RandomSeed, Random generates a random number and a new RandomSeed.
+hashes :: [String] -> [String]
